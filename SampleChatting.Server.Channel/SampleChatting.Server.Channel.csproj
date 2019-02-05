@@ -9,8 +9,14 @@
     <Reference Include="Suyeong.Lib.Net.Tcp">
       <HintPath>..\dlls\Suyeong.Lib.Net.Tcp.dll</HintPath>
     </Reference>
+    <Reference Include="Suyeong.Lib.DB.Sqlite">
+      <HintPath>..\dlls\Suyeong.Lib.DB.Sqlite.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SampleChatting.Lib\SampleChatting.Lib.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.109.2" />
   </ItemGroup>
 </Project>
