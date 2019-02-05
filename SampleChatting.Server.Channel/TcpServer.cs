@@ -1,19 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading.Tasks;
+using SampleChatting.Lib;
+
 namespace SampleChatting.Server.Channel
 {
-    public class TcpServerChannel
+    public class TcpServer
     {
         public event Action<string> OnMessage;
 
         List<TcpClient> rooms;
 
-        public TcpServerChannel()
+        public TcpServer()
         {
             this.rooms = new List<TcpClient>();
 
             foreach (string ip in Servers.IP_LOBBY)
             {
-                this.rooms.Add(new TcpClient(ip, Servers.PORT_ROOM));
+                this.rooms.Add(new TcpClient(ip, Servers.PORT_CHANNEL));
             }
         }
 

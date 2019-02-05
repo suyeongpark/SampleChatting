@@ -1,7 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading.Tasks;
+using SampleChatting.Lib;
+
 namespace SampleChatting.Server.Login
 {
-    public class TcpServerLogin
+    public class TcpServer
     {
         Dictionary<Guid, TcpClientHandler> clientDic;
         //TcpClient manager;
@@ -31,7 +37,7 @@ namespace SampleChatting.Server.Login
 
         List<TcpClient> lobbies;
 
-        public TcpServerLogin()
+        public TcpServer()
         {
             this.clientDic = new Dictionary<Guid, TcpClientHandler>();
 

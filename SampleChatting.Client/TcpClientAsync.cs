@@ -3,126 +3,130 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Suyeong.Lib.Net.Tcp;
+using SampleChatting.Lib;
 
 namespace SampleChatting.Client
 {
-    public event Action<IPacket> OnNotice;
-
-    TcpClient client;
-    Queue<IPacket> receiveQueue;
-    Dictionary<string, Action<IPacket>> callbackDic;
-
-    public TcpClientAsync(string serverIP, int portNum)
+    public class TcpClientAsync
     {
-        this.client = new TcpClient(serverIP, portNum);
-        this.receiveQueue = new Queue<IPacket>();
-        this.callbackDic = new Dictionary<string, Action<IPacket>>();
-    }
+        public event Action<IPacket> OnNotice;
 
-    public void Start()
-    {
-        Task.Run(() => ListenAsync());
-        Task.Run(() => CheckResultAsync());
-    }
+        TcpClient client;
+        Queue<IPacket> receiveQueue;
+        Dictionary<string, Action<IPacket>> callbackDic;
 
-    public void Close()
-    {
-        this.client.Close();
-    }
-
-    async public Task CloseAsync()
-    {
-        PacketMessage send = new PacketMessage(type: PacketType.Message, protocol: Protocols.EXIT_CLIENT, data: string.Empty);
-
-        await RequestAsync(packet: send, callback: (packet) =>
+        public TcpClientAsync(string serverIP, int portNum)
         {
-            PacketMessage receive = packet as PacketMessage;
-            bool result = (bool)receive.Data;
+            this.client = new TcpClient(serverIP, portNum);
+            this.receiveQueue = new Queue<IPacket>();
+            this.callbackDic = new Dictionary<string, Action<IPacket>>();
+        }
 
-            // 클라이언트에서 종료 의사를 밝혔으므로 서버 응답이 어떻게 되든 무조건 종료.
+        public void Start()
+        {
+            Task.Run(() => ListenAsync());
+            Task.Run(() => CheckResultAsync());
+        }
+
+        public void Close()
+        {
             this.client.Close();
-
-            //if (result)
-            //{
-            //    this.client.Close();
-            //}
-        });
-    }
-
-    async public Task RequestAsync(IPacket packet, Action<IPacket> callback)
-    {
-        if (this.callbackDic.ContainsKey(packet.Protocol))
-        {
-            this.callbackDic[packet.Protocol] = callback;
-        }
-        else
-        {
-            this.callbackDic.Add(packet.Protocol, callback);
         }
 
-        await SendPacketAsync(packet: packet);
-    }
-
-    async Task SendPacketAsync(IPacket packet)
-    {
-        try
+        async public Task CloseAsync()
         {
-            using (NetworkStream networkStream = this.client.GetStream())
+            PacketMessage send = new PacketMessage(type: PacketType.Message, protocol: Protocols.EXIT_CLIENT, data: string.Empty);
+
+            await RequestAsync(packet: send, callback: (packet) =>
             {
-                await TcpNetworkStream.SendPacketAsync(networkStream: networkStream, packet: packet);
+                PacketMessage receive = packet as PacketMessage;
+                bool result = (bool)receive.Data;
+
+                // 클라이언트에서 종료 의사를 밝혔으므로 서버 응답이 어떻게 되든 무조건 종료.
+                this.client.Close();
+
+                //if (result)
+                //{
+                //    this.client.Close();
+                //}
+            });
+        }
+
+        async public Task RequestAsync(IPacket packet, Action<IPacket> callback)
+        {
+            if (this.callbackDic.ContainsKey(packet.Protocol))
+            {
+                this.callbackDic[packet.Protocol] = callback;
             }
-        }
-        catch (Exception ex)
-        {
-            Close();
-        }
-    }
+            else
+            {
+                this.callbackDic.Add(packet.Protocol, callback);
+            }
 
-    async Task ListenAsync()
-    {
-        try
-        {
-            IPacket result;
+            await SendPacketAsync(packet: packet);
+        }
 
-            while (this.client.Connected)
+        async Task SendPacketAsync(IPacket packet)
+        {
+            try
             {
                 using (NetworkStream networkStream = this.client.GetStream())
                 {
-                    result = await TcpNetworkStream.ReceivePacketAsync(networkStream: networkStream);
+                    await TcpNetworkStream.SendPacketAsync(networkStream: networkStream, packet: packet);
+                }
+            }
+            catch (Exception ex)
+            {
+                Close();
+            }
+        }
 
-                    if (result != null)
+        async Task ListenAsync()
+        {
+            try
+            {
+                IPacket result;
+
+                while (this.client.Connected)
+                {
+                    using (NetworkStream networkStream = this.client.GetStream())
                     {
-                        receiveQueue.Enqueue(result);
+                        result = await TcpNetworkStream.ReceivePacketAsync(networkStream: networkStream);
+
+                        if (result != null)
+                        {
+                            receiveQueue.Enqueue(result);
+                        }
                     }
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            Close();
-        }
-    }
-
-    async Task CheckResultAsync()
-    {
-        if (this.receiveQueue.Count > 0)
-        {
-            IPacket result = this.receiveQueue.Dequeue();
-            Action<IPacket> callback;
-
-            // protocol이 있었으면 클라이언트가 요청을 보낸 것에 대한 응답
-            if (this.callbackDic.TryGetValue(result.Protocol, out callback))
+            catch (Exception ex)
             {
-                this.callbackDic.Remove(result.Protocol);
-                callback(result);
-            }
-            // protocol이 없었으면 서버에서 보내온 Broadcast
-            else
-            {
-                this.OnNotice?.Invoke(result);
+                Close();
             }
         }
 
-        await Task.Delay(Values.DELAY_CHECK_QUEUE);
+        async Task CheckResultAsync()
+        {
+            if (this.receiveQueue.Count > 0)
+            {
+                IPacket result = this.receiveQueue.Dequeue();
+                Action<IPacket> callback;
+
+                // protocol이 있었으면 클라이언트가 요청을 보낸 것에 대한 응답
+                if (this.callbackDic.TryGetValue(result.Protocol, out callback))
+                {
+                    this.callbackDic.Remove(result.Protocol);
+                    callback(result);
+                }
+                // protocol이 없었으면 서버에서 보내온 Broadcast
+                else
+                {
+                    this.OnNotice?.Invoke(result);
+                }
+            }
+
+            await Task.Delay(Values.DELAY_CHECK_QUEUE);
+        }
     }
 }

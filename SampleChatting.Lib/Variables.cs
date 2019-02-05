@@ -17,7 +17,6 @@
     public static class Protocols
     {
         public const string EXIT_CLIENT = "ExitClient";
-
         public const string GET_USER_ACCESS = "GetUserAccess";
     }
 

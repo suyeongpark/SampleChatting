@@ -10,4 +10,7 @@
       <HintPath>..\dlls\Suyeong.Lib.Net.Tcp.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SampleChatting.Lib\SampleChatting.Lib.csproj" />
+  </ItemGroup>
 </Project>
