@@ -8,7 +8,8 @@
     ".NETCoreApp,Version=v2.0": {
       "Suyeong.Lib.Net.Tcp/1.0.0": {
         "dependencies": {
-          "Newtonsoft.Json": "12.0.1"
+          "Newtonsoft.Json": "12.0.1",
+          "Suyeong.Lib.Util": "1.0.0.0"
         },
         "runtime": {
           "Suyeong.Lib.Net.Tcp.dll": {}
@@ -17,6 +18,11 @@
       "Newtonsoft.Json/12.0.1": {
         "runtime": {
           "lib/netstandard2.0/Newtonsoft.Json.dll": {}
+        }
+      },
+      "Suyeong.Lib.Util/1.0.0.0": {
+        "runtime": {
+          "Suyeong.Lib.Util.dll": {}
         }
       }
     }
@@ -33,6 +39,11 @@
       "sha512": "sha512-jmVyoEyk0In8r+AObYQyFKVFm7uSRzE0XSHSbEtBJcZDMV6DqJoyB4FLcHwprPVhAh826so0db3DIKXVnpGoPA==",
       "path": "newtonsoft.json/12.0.1",
       "hashPath": "newtonsoft.json.12.0.1.nupkg.sha512"
+    },
+    "Suyeong.Lib.Util/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
     }
   }
 }

@@ -22,7 +22,7 @@
         public const string EXIT_CLIENT = "ExitClient";
 
         public const string CREATE_USER = "CreateUser";
-        public const string GET_USER_ACCESS = "GetUserAccess";
+        public const string LOGIN = "Login";
     }
 
     public static class Servers

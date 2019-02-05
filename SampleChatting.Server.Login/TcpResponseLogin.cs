@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Suyeong.Lib.Net.Tcp;
-using Suyeong.Lib.DB.Sqlite;
-using SampleChatting.Lib;
 using System.Data;
+using Suyeong.Lib.Net.Tcp;
+using SampleChatting.Lib;
 
 namespace SampleChatting.Server.Login
 {
@@ -24,8 +22,8 @@ namespace SampleChatting.Server.Login
                 case Protocols.CREATE_USER:
                     return await CreateUser(protocol: Protocols.CREATE_USER, data: packet.Data);
 
-                case Protocols.GET_USER_ACCESS:
-                    return await GetAccess(protocol: Protocols.GET_USER_ACCESS, data: packet.Data);
+                case Protocols.LOGIN:
+                    return await Login(protocol: Protocols.LOGIN, data: packet.Data);
 
                 default:
                     return null;
@@ -49,28 +47,34 @@ namespace SampleChatting.Server.Login
             string id = dic[Keys.ID];
             string password = dic[Keys.PASSWORD];
 
-            bool isDuplicate = await DataBase.IsDuplicateID(id);
-
-            if (isDuplicate)
+            if (await DataBase.IsDuplicated(id))
             {
-                return new PacketMessage(type: PacketType.Message, protocol: protocol, data: !isDuplicate);
+                return new PacketMessage(type: PacketType.Message, protocol: protocol, data: false);
             }
             else
             {
                 bool isSucceed = await DataBase.CreateUser(id: id, password: password);
+
                 return new PacketMessage(type: PacketType.Message, protocol: protocol, data: isSucceed);
             }
         }
 
-        async Task<PacketMessage> GetAccess(string protocol, object data)
+        async Task<PacketMessage> Login(string protocol, object data)
         {
             Dictionary<string, string> dic = data as Dictionary<string, string>;
             string id = dic[Keys.ID];
             string password = dic[Keys.PASSWORD];
 
-            DataTable table = await DataBase.GetAccess(id: id, password: password);
+            if (await DataBase.IsApproved(id: id, password: password))
+            {
+                // 승인이 되었으면 모든 channel의 사용자 정보를 가져와서 보낸다.
 
-            return new PacketMessage(type: PacketType.Message, protocol: protocol, data: table);
+                return new PacketMessage(type: PacketType.Message, protocol: protocol, data: true);
+            }
+            else
+            {
+                return new PacketMessage(type: PacketType.Message, protocol: protocol, data: false);
+            }
         }
     }
 }

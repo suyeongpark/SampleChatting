@@ -17,17 +17,17 @@ namespace SampleChatting.Server.Login
             _conStr = SqliteDB.GetDbConStr(dataSource: Values.DB_DATASOURCE, password: Values.DB_PASSWORD);
         }
 
-        async public static Task<bool> IsDuplicateID(string id)
+        async public static Task<bool> IsDuplicated(string id)
         {
             string result = string.Empty;
 
             try
             {
                 SQLiteParameter[] parameters = {
-                    new SQLiteParameter("@ID", id),
+                    new SQLiteParameter(Parameters.ID, id),
                 };
 
-                result = await SqliteDB.GetDataSingleAsync(conStr: _conStr, query: Query.SELECT_ID, parameters: parameters);
+                result = await SqliteDB.GetDataSingleAsync(conStr: _conStr, query: Queries.SELECT_ID, parameters: parameters);
             }
             catch (Exception ex)
             {
@@ -43,12 +43,15 @@ namespace SampleChatting.Server.Login
 
             try
             {
+                // 여기서 password 암호화해서 DB에 저장
+                // http://suyeongpark.me/archives/2903
+                // https://d2.naver.com/helloworld/318732
                 SQLiteParameter[] parameters = {
-                    new SQLiteParameter("@ID", id),
-                    new SQLiteParameter("@Password", password),
+                    new SQLiteParameter(Parameters.ID, id),
+                    new SQLiteParameter(Parameters.PASSWORD, password),
                 };
 
-                result = await SqliteDB.SetQueryAsync(conStr: _conStr, query: Query.SELECT_ACCESS, parameters: parameters);
+                result = await SqliteDB.SetQueryAsync(conStr: _conStr, query: Queries.INSERT_USER, parameters: parameters);
             }
             catch (Exception ex)
             {
@@ -58,25 +61,26 @@ namespace SampleChatting.Server.Login
             return result;
         }
 
-        async public static Task<DataTable> GetAccess(string id, string password)
+        async public static Task<bool> IsApproved(string id, string password)
         {
-            DataTable table = new DataTable();
+            string result = string.Empty;
 
             try
             {
+                // 여기서 password 암호화해서 DB에 비교
                 SQLiteParameter[] parameters = {
-                    new SQLiteParameter("@ID", id),
-                    new SQLiteParameter("@Password", password),
+                    new SQLiteParameter(Parameters.ID, id),
+                    new SQLiteParameter(Parameters.PASSWORD, password),
                 };
 
-                table = await SqliteDB.GetDataTableAsync(conStr: _conStr, query: Query.SELECT_ACCESS, parameters: parameters);
+                result = await SqliteDB.GetDataSingleAsync(conStr: _conStr, query: Queries.SELECT_ACCOUNT, parameters: parameters);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
 
-            return table;
+            return Utils.GetIntFromString(result) > 0;
         }
     }
 }
