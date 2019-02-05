@@ -56,7 +56,7 @@ namespace SampleChatting.Lib
                 {
                     using (NetworkStream networkStream = this.client.GetStream())
                     {
-                        request = await TcpNetworkStream.ReceivePacketAsync(networkStream: networkStream);
+                        request = await TcpNetworkStream.ReceivePacketAsync(networkStream: networkStream, key: Crypts.KEY, iv: Crypts.IV);
 
                         if (request != null)
                         {
@@ -104,7 +104,7 @@ namespace SampleChatting.Lib
             {
                 using (NetworkStream networkStream = this.client.GetStream())
                 {
-                    await TcpNetworkStream.SendPacketAsync(networkStream: networkStream, packet: packet);
+                    await TcpNetworkStream.SendPacketAsync(networkStream: networkStream, packet: packet, key: Crypts.KEY, iv: Crypts.IV);
                 }
             }
             catch (Exception ex)

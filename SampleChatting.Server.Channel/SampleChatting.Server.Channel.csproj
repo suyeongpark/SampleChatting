@@ -12,6 +12,15 @@
     <Reference Include="Suyeong.Lib.DB.Sqlite">
       <HintPath>..\dlls\Suyeong.Lib.DB.Sqlite.dll</HintPath>
     </Reference>
+    <Reference Include="Suyeong.Lib.Net.Tcp">
+      <HintPath>..\dll\Suyeong.Lib.Net.Tcp.dll</HintPath>
+    </Reference>
+    <Reference Include="Suyeong.Lib.DB.Sqlite">
+      <HintPath>..\dll\Suyeong.Lib.DB.Sqlite.dll</HintPath>
+    </Reference>
+    <Reference Include="Suyeong.Lib.Util">
+      <HintPath>..\dll\Suyeong.Lib.Util.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SampleChatting.Lib\SampleChatting.Lib.csproj" />
