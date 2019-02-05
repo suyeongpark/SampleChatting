@@ -31,7 +31,7 @@ namespace SampleChatting.Server.Login
             }
             catch (Exception ex)
             {
-
+                Console.WriteLine(ex);
             }
 
             return Utils.GetIntFromString(result) > 0;
@@ -48,12 +48,11 @@ namespace SampleChatting.Server.Login
                     new SQLiteParameter("@Password", password),
                 };
 
-                await SqliteDB.SetQueryAsync(conStr: _conStr, query: Query.SELECT_ACCESS, parameters: parameters);
-                result = true;
+                result = await SqliteDB.SetQueryAsync(conStr: _conStr, query: Query.SELECT_ACCESS, parameters: parameters);
             }
             catch (Exception ex)
             {
-
+                Console.WriteLine(ex);
             }
 
             return result;
@@ -74,7 +73,7 @@ namespace SampleChatting.Server.Login
             }
             catch (Exception ex)
             {
-
+                Console.WriteLine(ex);
             }
 
             return table;
