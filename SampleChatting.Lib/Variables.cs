@@ -12,11 +12,16 @@
     public static class Values
     {
         public const int DELAY_CHECK_QUEUE = 1000;
+
+        public const string DB_DATASOURCE = "";
+        public const string DB_PASSWORD = "";
     }
 
     public static class Protocols
     {
         public const string EXIT_CLIENT = "ExitClient";
+
+        public const string CREATE_USER = "CreateUser";
         public const string GET_USER_ACCESS = "GetUserAccess";
     }
 

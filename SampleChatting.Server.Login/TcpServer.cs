@@ -39,6 +39,8 @@ namespace SampleChatting.Server.Login
 
         public TcpServer()
         {
+            DataBase.Init();
+
             this.clientDic = new Dictionary<Guid, TcpClientHandler>();
 
             this.lobbies = new List<TcpClient>();
