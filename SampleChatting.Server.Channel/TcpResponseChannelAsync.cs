@@ -5,18 +5,18 @@ using Suyeong.Lib.Net.Tcp;
 
 namespace SampleChatting.Server.Channel
 {
-    public class TcpResponseChannel : TcpResponse
+    public class TcpResponseChannelAsync : TcpResponseAsync
     {
-        public TcpResponseChannel()
+        public TcpResponseChannelAsync()
         {
         }
 
-        protected override Task<IPacket> GetResulFile(IPacket request)
+        protected override Task<ITcpPacket> GetResulFileAsync(ITcpPacket request)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<IPacket> GetResultMessage(IPacket request)
+        protected override Task<ITcpPacket> GetResultMessageAsync(ITcpPacket request)
         {
             throw new NotImplementedException();
         }

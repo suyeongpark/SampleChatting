@@ -1,21 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Suyeong.Lib.Net;
 using Suyeong.Lib.Net.Tcp;
 using SampleChatting.Lib;
 
 namespace SampleChatting.Server.Login
 {
-    public class TcpResponseLogin : TcpResponse
+    public class TcpResponseLoginAsync : TcpResponseAsync
     {
-        public TcpResponseLogin()
+        public TcpResponseLoginAsync()
         {
             DataBase.Init();
         }
 
-        async protected override Task<IPacket> GetResultMessage(IPacket request)
+        async protected override Task<ITcpPacket> GetResultMessageAsync(ITcpPacket request)
         {
-            PacketMessage packet = request as PacketMessage;
+            TcpPacketMessage packet = request as TcpPacketMessage;
 
             switch (packet.Protocol)
             {
@@ -30,9 +29,9 @@ namespace SampleChatting.Server.Login
             }
         }
 
-        async protected override Task<IPacket> GetResulFile(IPacket request)
+        async protected override Task<ITcpPacket> GetResulFileAsync(ITcpPacket request)
         {
-            PacketFile packet = request as PacketFile;
+            TcpPacketFile packet = request as TcpPacketFile;
 
             switch (packet.Protocol)
             {
@@ -41,34 +40,34 @@ namespace SampleChatting.Server.Login
             }
         }
 
-        async Task<PacketMessage> CreateUser(string protocol, object data)
+        async Task<TcpPacketMessage> CreateUser(string protocol, object data)
         {
             Dictionary<string, string> dic = data as Dictionary<string, string>;
             string id = dic[Keys.ID];
             string password = dic[Keys.PASSWORD];
 
-            return new PacketMessage(type: PacketType.Message, protocol: protocol, data: true);
+            return new TcpPacketMessage(type: PacketType.Message, protocol: protocol, data: true);
 
             if (await DataBase.IsDuplicated(id))
             {
-                return new PacketMessage(type: PacketType.Message, protocol: protocol, data: false);
+                return new TcpPacketMessage(type: PacketType.Message, protocol: protocol, data: false);
             }
             else
             {
                 bool isSucceed = await DataBase.CreateUser(id: id, password: password);
 
-                return new PacketMessage(type: PacketType.Message, protocol: protocol, data: isSucceed);
+                return new TcpPacketMessage(type: PacketType.Message, protocol: protocol, data: isSucceed);
             }
         }
 
-        async Task<PacketMessage> Login(string protocol, object data)
+        async Task<TcpPacketMessage> Login(string protocol, object data)
         {
             Dictionary<string, string> dic = data as Dictionary<string, string>;
             string id = dic[Keys.ID];
             string password = dic[Keys.PASSWORD];
 
 
-            return new PacketMessage(type: PacketType.Message, protocol: protocol, data: true);
+            return new TcpPacketMessage(type: PacketType.Message, protocol: protocol, data: true);
 
             //if (await DataBase.IsApproved(id: id, password: password))
             //{

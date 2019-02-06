@@ -12,11 +12,11 @@
     <Reference Include="Suyeong.Lib.Net.Tcp">
       <HintPath>..\dll\Suyeong.Lib.Net.Tcp.dll</HintPath>
     </Reference>
-    <Reference Include="Suyeong.Lib.Net">
-      <HintPath>..\dll\Suyeong.Lib.Net.dll</HintPath>
-    </Reference>
     <Reference Include="Suyeong.Lib.Util">
       <HintPath>..\dll\Suyeong.Lib.Util.dll</HintPath>
+    </Reference>
+    <Reference Include="Suyeong.Lib.Crypt">
+      <HintPath>..\dll\Suyeong.Lib.Crypt.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -24,9 +24,6 @@
     <Reference Include="Suyeong.Lib.Util">
       <HintPath>..\dll\Suyeong.Lib.Util.dll</HintPath>
     </Reference>
-    <Reference Include="Suyeong.Lib.Net">
-      <HintPath>..\dll\Suyeong.Lib.Net.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SampleChatting.Lib\SampleChatting.Lib.csproj" />

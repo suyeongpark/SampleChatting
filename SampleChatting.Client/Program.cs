@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SampleChatting.Lib;
-using Suyeong.Lib.Net;
+using Suyeong.Lib.Net.Tcp;
 
 namespace SampleChatting.Client
 {
@@ -47,15 +47,15 @@ namespace SampleChatting.Client
                 dic.Add(Keys.PASSWORD, "Password");
 
                 Console.WriteLine("Send Message");
-                PacketMessage message = new PacketMessage(type: PacketType.Message, protocol: Protocols.LOGIN, data: dic);
+                TcpPacketMessage message = new TcpPacketMessage(type: PacketType.Message, protocol: Protocols.LOGIN, data: dic);
 
                 await client.RequestAsync(packet: message, callback: GetResult);
             }
         }
 
-        static void GetResult(IPacket packet)
+        static void GetResult(ITcpPacket packet)
         {
-            PacketMessage msg = packet as PacketMessage;
+            TcpPacketMessage msg = packet as TcpPacketMessage;
             Console.WriteLine("login: {0}", (bool)msg.Data);
         }
     }

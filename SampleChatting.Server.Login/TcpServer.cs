@@ -45,7 +45,7 @@ namespace SampleChatting.Server.Login
         async Task AddClient(TcpClient client, Guid guid)
         {
             Console.WriteLine("AddClient: {0}", guid);
-            TcpClientHandler handler = new TcpClientHandler(client: client, guid: guid, response: new TcpResponseLogin());
+            TcpClientHandler handler = new TcpClientHandler(client: client, guid: guid, response: new TcpResponseLoginAsync());
             handler.OnDisconnect += Disconnect;
             await handler.StartAsync();
 

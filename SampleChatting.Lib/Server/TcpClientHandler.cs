@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using Suyeong.Lib.Net;
+using Suyeong.Lib.Crypt;
 using Suyeong.Lib.Net.Tcp;
+using Suyeong.Lib.Util;
 
 namespace SampleChatting.Lib
 {
@@ -13,16 +14,16 @@ namespace SampleChatting.Lib
 
         TcpClient client;
         Guid guid;
-        IResponse response;
-        Queue<IPacket> requestQueue, resultQueue;
+        ITcpResponseAsync response;
+        Queue<ITcpPacket> requestQueue, resultQueue;
 
-        public TcpClientHandler(TcpClient client, Guid guid, IResponse response)
+        public TcpClientHandler(TcpClient client, Guid guid, ITcpResponseAsync response)
         {
             this.client = client;
             this.guid = guid;
             this.response = response;
-            this.requestQueue = new Queue<IPacket>();
-            this.resultQueue = new Queue<IPacket>();
+            this.requestQueue = new Queue<ITcpPacket>();
+            this.resultQueue = new Queue<ITcpPacket>();
         }
 
         async public Task StartAsync()
@@ -42,7 +43,7 @@ namespace SampleChatting.Lib
             this.client.Close();
         }
 
-        async public Task Broadcast(IPacket result)
+        async public Task Broadcast(ITcpPacket result)
         {
             await SendResultAsync(packet: result);
         }
@@ -51,16 +52,20 @@ namespace SampleChatting.Lib
         {
             try
             {
-                IPacket request;
+                ITcpPacket request;
+                byte[] source, decrypt;
 
                 while (this.client.Connected)
                 {
                     using (NetworkStream networkStream = this.client.GetStream())
                     {
-                        request = await TcpNetworkStream.ReceivePacketAsync(networkStream: networkStream, key: Crypts.KEY, iv: Crypts.IV);
+                        source = await TcpStream.ReceivePacketAsync(networkStream: networkStream);
 
-                        if (request != null)
+                        if (source != null)
                         {
+                            decrypt = await Crypts.DecryptAsync(data: source, key: Values.CRYPT_KEY, iv: Values.CRYPT_IV);
+                            request = Utils.BinaryToObject(decrypt) as ITcpPacket;
+
                             this.requestQueue.Enqueue(request);
                         }
                     }
@@ -79,8 +84,8 @@ namespace SampleChatting.Lib
             {
                 if (this.requestQueue.Count > 0)
                 {
-                    IPacket request = this.requestQueue.Dequeue();
-                    IPacket result = await this.response.GetResult(request: request);
+                    ITcpPacket request = this.requestQueue.Dequeue();
+                    ITcpPacket result = await this.response.GetResultAsync(request: request);
 
                     if (result != null)
                     {
@@ -98,7 +103,7 @@ namespace SampleChatting.Lib
             {
                 if (this.resultQueue.Count > 0)
                 {
-                    IPacket result = this.resultQueue.Dequeue();
+                    ITcpPacket result = this.resultQueue.Dequeue();
                     await SendResultAsync(packet: result);
                 }
 
@@ -106,13 +111,16 @@ namespace SampleChatting.Lib
             }
         }
 
-        async Task SendResultAsync(IPacket packet)
+        async Task SendResultAsync(ITcpPacket packet)
         {
             try
             {
                 using (NetworkStream networkStream = this.client.GetStream())
                 {
-                    await TcpNetworkStream.SendPacketAsync(networkStream: networkStream, packet: packet, key: Crypts.KEY, iv: Crypts.IV);
+                    byte[] source = Utils.ObjectToBinary(packet);
+                    byte[] encrypt = await Crypts.EncryptAsync(data: source, key: Values.CRYPT_KEY, iv: Values.CRYPT_IV);
+
+                    await TcpStream.SendPacketAsync(networkStream: networkStream, packetType: packet.Type, data: encrypt);
                 }
             }
             catch (Exception ex)
