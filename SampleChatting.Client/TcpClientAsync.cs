@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Suyeong.Lib.Net;
 using Suyeong.Lib.Net.Tcp;
 using SampleChatting.Lib;
 
@@ -15,17 +16,17 @@ namespace SampleChatting.Client
         Queue<IPacket> receiveQueue;
         Dictionary<string, Action<IPacket>> callbackDic;
 
-        public TcpClientAsync(string serverIP, int portNum)
+        public TcpClientAsync(string ip, int port)
         {
-            this.client = new TcpClient(serverIP, portNum);
+            this.client = new TcpClient(ip, port);
             this.receiveQueue = new Queue<IPacket>();
             this.callbackDic = new Dictionary<string, Action<IPacket>>();
         }
 
-        public void Start()
+        async public Task StartAsync()
         {
-            Task.Run(() => ListenAsync());
-            Task.Run(() => CheckResultAsync());
+            await Task.Run(() => ListenAsync());
+            await Task.Run(() => CheckResultAsync());
         }
 
         public void Close()
@@ -77,6 +78,7 @@ namespace SampleChatting.Client
             }
             catch (Exception ex)
             {
+                Console.WriteLine("SendPacketAsync: {0}", ex);
                 Close();
             }
         }
@@ -102,31 +104,35 @@ namespace SampleChatting.Client
             }
             catch (Exception ex)
             {
+                Console.WriteLine("ListenAsync: {0}", ex);
                 Close();
             }
         }
 
         async Task CheckResultAsync()
         {
-            if (this.receiveQueue.Count > 0)
+            while (this.client.Connected)
             {
-                IPacket result = this.receiveQueue.Dequeue();
-                Action<IPacket> callback;
+                if (this.receiveQueue.Count > 0)
+                {
+                    IPacket result = this.receiveQueue.Dequeue();
+                    Action<IPacket> callback;
 
-                // protocol이 있었으면 클라이언트가 요청을 보낸 것에 대한 응답
-                if (this.callbackDic.TryGetValue(result.Protocol, out callback))
-                {
-                    this.callbackDic.Remove(result.Protocol);
-                    callback(result);
+                    // protocol이 있었으면 클라이언트가 요청을 보낸 것에 대한 응답
+                    if (this.callbackDic.TryGetValue(result.Protocol, out callback))
+                    {
+                        this.callbackDic.Remove(result.Protocol);
+                        callback(result);
+                    }
+                    // protocol이 없었으면 서버에서 보내온 Broadcast
+                    else
+                    {
+                        this.OnNotice?.Invoke(result);
+                    }
                 }
-                // protocol이 없었으면 서버에서 보내온 Broadcast
-                else
-                {
-                    this.OnNotice?.Invoke(result);
-                }
+
+                await Task.Delay(Values.DELAY_CHECK_QUEUE);
             }
-
-            await Task.Delay(Values.DELAY_CHECK_QUEUE);
         }
     }
 }

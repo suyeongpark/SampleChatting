@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Data;
+using Suyeong.Lib.Net;
 using Suyeong.Lib.Net.Tcp;
 using SampleChatting.Lib;
 
@@ -47,6 +47,8 @@ namespace SampleChatting.Server.Login
             string id = dic[Keys.ID];
             string password = dic[Keys.PASSWORD];
 
+            return new PacketMessage(type: PacketType.Message, protocol: protocol, data: true);
+
             if (await DataBase.IsDuplicated(id))
             {
                 return new PacketMessage(type: PacketType.Message, protocol: protocol, data: false);
@@ -65,16 +67,19 @@ namespace SampleChatting.Server.Login
             string id = dic[Keys.ID];
             string password = dic[Keys.PASSWORD];
 
-            if (await DataBase.IsApproved(id: id, password: password))
-            {
-                // 승인이 되었으면 모든 channel의 사용자 정보를 가져와서 보낸다.
 
-                return new PacketMessage(type: PacketType.Message, protocol: protocol, data: true);
-            }
-            else
-            {
-                return new PacketMessage(type: PacketType.Message, protocol: protocol, data: false);
-            }
+            return new PacketMessage(type: PacketType.Message, protocol: protocol, data: true);
+
+            //if (await DataBase.IsApproved(id: id, password: password))
+            //{
+            //    // 승인이 되었으면 모든 channel의 사용자 정보를 가져와서 보낸다.
+
+            //    return new PacketMessage(type: PacketType.Message, protocol: protocol, data: true);
+            //}
+            //else
+            //{
+            //    return new PacketMessage(type: PacketType.Message, protocol: protocol, data: false);
+            //}
         }
     }
 }

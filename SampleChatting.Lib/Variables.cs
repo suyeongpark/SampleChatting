@@ -30,6 +30,8 @@
         public const int PORT_LOGIN = 18100;
         public const int PORT_CHANNEL = 18200;
 
+        public const string IP_LOGIN = "localhost";
+
         public static string[] IP_LOBBY = {
             "localhost",
         };

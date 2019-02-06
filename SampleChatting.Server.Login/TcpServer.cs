@@ -9,32 +9,9 @@ namespace SampleChatting.Server.Login
 {
     public class TcpServer
     {
-        Dictionary<Guid, TcpClientHandler> clientDic;
-        //TcpClient manager;
-
-        //public TcpServerLogin()
-        //{
-        //    manager = new TcpClient(Servers.IP_MANAGER, Servers.PORT_MANAGER);
-        //    this.clientDic = new Dictionary<Guid, TcpClientHandler>();
-        //}
-
-        //public int ClientCount { get { return this.clientDic.Count; } }
-
-        //public void AddClient(TcpClient client, Guid guid)
-        //{
-        //    if (!this.clientDic.ContainsKey(guid))
-        //    {
-        //        TcpClientHandler handler = new TcpClientHandler(client: client, guid: guid, response: new TcpResponseLogin());
-        //        //handler.OnDisconnect += Disconnect;
-        //        handler.Start();
-
-        //        this.clientDic.Add(guid, handler);
-        //    }
-        //}
-
-
         public event Action<string> OnMessage;
 
+        Dictionary<Guid, TcpClientHandler> clientDic;
         List<TcpClient> lobbies;
 
         public TcpServer()
@@ -43,12 +20,12 @@ namespace SampleChatting.Server.Login
 
             this.clientDic = new Dictionary<Guid, TcpClientHandler>();
 
-            this.lobbies = new List<TcpClient>();
+            //this.lobbies = new List<TcpClient>();
 
-            foreach (string ip in Servers.IP_LOBBY)
-            {
-                this.lobbies.Add(new TcpClient(ip, Servers.PORT_CHANNEL));
-            }
+            //foreach (string ip in Servers.IP_LOBBY)
+            //{
+            //    this.lobbies.Add(new TcpClient(ip, Servers.PORT_CHANNEL));
+            //}
         }
 
         async public Task StartListen()
@@ -65,18 +42,12 @@ namespace SampleChatting.Server.Login
             }
         }
 
-        //void SendLogin(TcpClient client)
-        //{
-        //    this.lastLogin = ++this.lastLogin % this.logins.Count;
-        //    TcpClient login = this.logins[lastLogin];
-
-        //}
-
-        void AddClient(TcpClient client, Guid guid)
+        async Task AddClient(TcpClient client, Guid guid)
         {
+            Console.WriteLine("AddClient: {0}", guid);
             TcpClientHandler handler = new TcpClientHandler(client: client, guid: guid, response: new TcpResponseLogin());
             handler.OnDisconnect += Disconnect;
-            handler.Start();
+            await handler.StartAsync();
 
             this.clientDic.Add(guid, handler);
         }

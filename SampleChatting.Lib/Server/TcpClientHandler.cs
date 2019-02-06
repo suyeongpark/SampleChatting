@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Suyeong.Lib.Net;
 using Suyeong.Lib.Net.Tcp;
 
 namespace SampleChatting.Lib
@@ -24,16 +25,16 @@ namespace SampleChatting.Lib
             this.resultQueue = new Queue<IPacket>();
         }
 
-        public void Start()
+        async public Task StartAsync()
         {
             // 1. request를 받는다.
-            Task.Run(() => ListenAsync());
+            await Task.Run(() => ListenAsync());
 
             // 2. response를 처리한다
-            Task.Run(() => GetResultAsync());
+            await Task.Run(() => GetResultAsync());
 
             // 3. send
-            Task.Run(() => CheckResultAsync());
+            await Task.Run(() => CheckResultAsync());
         }
 
         public void Close()
@@ -67,35 +68,42 @@ namespace SampleChatting.Lib
             }
             catch (Exception ex)
             {
+                Console.WriteLine("ListenAsync Error: {0}", ex);
                 this.OnDisconnect?.Invoke(this.guid);
             }
         }
 
         async Task GetResultAsync()
         {
-            if (this.requestQueue.Count > 0)
+            while (this.client.Connected)
             {
-                IPacket request = this.requestQueue.Dequeue();
-                IPacket result = await this.response.GetResult(request: request);
-
-                if (result != null)
+                if (this.requestQueue.Count > 0)
                 {
-                    this.resultQueue.Enqueue(result);
-                }
-            }
+                    IPacket request = this.requestQueue.Dequeue();
+                    IPacket result = await this.response.GetResult(request: request);
 
-            await Task.Delay(Values.DELAY_CHECK_QUEUE);
+                    if (result != null)
+                    {
+                        this.resultQueue.Enqueue(result);
+                    }
+                }
+
+                await Task.Delay(Values.DELAY_CHECK_QUEUE);
+            }
         }
 
         async Task CheckResultAsync()
         {
-            if (this.resultQueue.Count > 0)
+            while (this.client.Connected)
             {
-                IPacket result = this.resultQueue.Dequeue();
-                await SendResultAsync(packet: result);
-            }
+                if (this.resultQueue.Count > 0)
+                {
+                    IPacket result = this.resultQueue.Dequeue();
+                    await SendResultAsync(packet: result);
+                }
 
-            await Task.Delay(Values.DELAY_CHECK_QUEUE);
+                await Task.Delay(Values.DELAY_CHECK_QUEUE);
+            }
         }
 
         async Task SendResultAsync(IPacket packet)
@@ -109,6 +117,7 @@ namespace SampleChatting.Lib
             }
             catch (Exception ex)
             {
+                Console.WriteLine("SendResultAsync Error: {0}", ex);
                 Close();
             }
         }
