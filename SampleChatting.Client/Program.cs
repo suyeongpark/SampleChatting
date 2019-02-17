@@ -23,20 +23,20 @@ namespace SampleChatting.Client
             //Console.WriteLine("key: {0}", string.Join(", ", key));
             //Console.WriteLine("iv: {0}", string.Join(", ", iv));
 
-            MainAsync(args).Wait();
+            //MainAsync(args).Wait();
+
+            Test();
         }
 
         async static Task MainAsync(string[] args)
         {
             Console.WriteLine("Hello World Async!");
-
-            await Test();
         }
 
-        async static Task Test()
+        static void Test()
         {
-            TcpClientAsync client = new TcpClientAsync(ip: Servers.IP_LOGIN, port: Servers.PORT_LOGIN);
-            await client.StartAsync();
+            TcpConnectorCrypt client = new TcpConnectorCrypt(ip: Servers.IP_LOGIN, port: Servers.PORT_LOGIN, cryptKey: Values.CRYPT_KEY, cryptIV: Values.CRYPT_IV);
+            client.Start();
 
             while(true)
             {
@@ -49,14 +49,14 @@ namespace SampleChatting.Client
                 Console.WriteLine("Send Message");
                 TcpPacketMessage message = new TcpPacketMessage(type: PacketType.Message, protocol: Protocols.LOGIN, data: dic);
 
-                await client.RequestAsync(packet: message, callback: GetResult);
+                client.Send(packet: message, callback: GetResult);
             }
         }
 
         static void GetResult(ITcpPacket packet)
         {
             TcpPacketMessage msg = packet as TcpPacketMessage;
-            Console.WriteLine("login: {0}", (bool)msg.Data);
+            Console.WriteLine("Get Result: {0}", (bool)msg.Data);
         }
     }
 }

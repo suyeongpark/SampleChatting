@@ -5,14 +5,9 @@ using SampleChatting.Lib;
 
 namespace SampleChatting.Server.Login
 {
-    public class TcpResponseLoginAsync : TcpResponseAsync
+    public static class TcpResponseLogin
     {
-        public TcpResponseLoginAsync()
-        {
-            DataBase.Init();
-        }
-
-        async protected override Task<ITcpPacket> GetResultMessageAsync(ITcpPacket request)
+        async public static Task<ITcpPacket> GetResultMessageAsync(ITcpPacket request)
         {
             TcpPacketMessage packet = request as TcpPacketMessage;
 
@@ -29,7 +24,7 @@ namespace SampleChatting.Server.Login
             }
         }
 
-        async protected override Task<ITcpPacket> GetResulFileAsync(ITcpPacket request)
+        async public static Task<ITcpPacket> GetResulFileAsync(ITcpPacket request)
         {
             TcpPacketFile packet = request as TcpPacketFile;
 
@@ -40,7 +35,7 @@ namespace SampleChatting.Server.Login
             }
         }
 
-        async Task<TcpPacketMessage> CreateUser(string protocol, object data)
+        async static Task<TcpPacketMessage> CreateUser(string protocol, object data)
         {
             Dictionary<string, string> dic = data as Dictionary<string, string>;
             string id = dic[Keys.ID];
@@ -60,7 +55,7 @@ namespace SampleChatting.Server.Login
             }
         }
 
-        async Task<TcpPacketMessage> Login(string protocol, object data)
+        async static Task<TcpPacketMessage> Login(string protocol, object data)
         {
             Dictionary<string, string> dic = data as Dictionary<string, string>;
             string id = dic[Keys.ID];

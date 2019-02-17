@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Suyeong.Lib.Net.Tcp;
 using SampleChatting.Lib;
 
 namespace SampleChatting.Server.Login
@@ -11,14 +12,14 @@ namespace SampleChatting.Server.Login
     {
         public event Action<string> OnMessage;
 
-        Dictionary<Guid, TcpClientHandler> clientDic;
+        Dictionary<Guid, TestHandlerCrypt> clientDic;
         List<TcpClient> lobbies;
 
         public TcpServer()
         {
             DataBase.Init();
 
-            this.clientDic = new Dictionary<Guid, TcpClientHandler>();
+            this.clientDic = new Dictionary<Guid, TestHandlerCrypt>();
 
             //this.lobbies = new List<TcpClient>();
 
@@ -34,22 +35,38 @@ namespace SampleChatting.Server.Login
             server.Start();
 
             TcpClient client;
+            Guid guid;
+            TestHandlerCrypt handler;
 
             while (true)
             {
                 client = await server.AcceptTcpClientAsync().ConfigureAwait(false);
-                await Task.Run(() => AddClient(client: client, guid: Guid.NewGuid()));
+                guid = Guid.NewGuid();
+                handler = new TestHandlerCrypt(client: client, guid: guid, cryptKey: Values.CRYPT_KEY, cryptIV: Values.CRYPT_IV);
+                handler.OnDisconnect += Disconnect;
+                handler.OnRequest += OnRequest;
+                handler.OnMessage += OnMessage;
+                handler.StartListen();
+
+                this.clientDic.Add(guid, handler);
+
+                Console.WriteLine("AddClient: {0}", guid);
             }
         }
 
-        async Task AddClient(TcpClient client, Guid guid)
+        void OnRequest(Guid guid, ITcpPacket request)
         {
-            Console.WriteLine("AddClient: {0}", guid);
-            TcpClientHandler handler = new TcpClientHandler(client: client, guid: guid, response: new TcpResponseLoginAsync());
-            handler.OnDisconnect += Disconnect;
-            await handler.StartAsync();
+            TestHandlerCrypt client = this.clientDic[guid];
+            Task.Run(() => GetResult(client: client, request: request));
+        }
 
-            this.clientDic.Add(guid, handler);
+        async Task GetResult(TestHandlerCrypt client, ITcpPacket request)
+        {
+            ITcpPacket result = request.Type == PacketType.Message 
+                ? await TcpResponseLogin.GetResultMessageAsync(request: request) 
+                : await TcpResponseLogin.GetResulFileAsync(request: request);
+
+            client.Send(packet: result);
         }
 
         void Disconnect(Guid guid)

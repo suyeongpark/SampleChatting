@@ -3,10 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Server\" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Remove="Class1.cs" />
   </ItemGroup>
@@ -19,9 +15,6 @@
     </Reference>
     <Reference Include="Suyeong.Lib.Util">
       <HintPath>..\dll\Suyeong.Lib.Util.dll</HintPath>
-    </Reference>
-    <Reference Include="Suyeong.Lib.Crypt">
-      <HintPath>..\dll\Suyeong.Lib.Crypt.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
