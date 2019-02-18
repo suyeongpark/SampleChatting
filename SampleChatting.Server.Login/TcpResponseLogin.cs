@@ -7,10 +7,8 @@ namespace SampleChatting.Server.Login
 {
     public static class TcpResponseLogin
     {
-        async public static Task<ITcpPacket> GetResultMessageAsync(ITcpPacket request)
+        async public static Task<ITcpPacket> GetResultMessageAsync(TcpPacketMessage packet)
         {
-            TcpPacketMessage packet = request as TcpPacketMessage;
-
             switch (packet.Protocol)
             {
                 case Protocols.CREATE_USER:
@@ -24,10 +22,8 @@ namespace SampleChatting.Server.Login
             }
         }
 
-        async public static Task<ITcpPacket> GetResulFileAsync(ITcpPacket request)
+        async public static Task<ITcpPacket> GetResulFileAsync(TcpPacketFile packet)
         {
-            TcpPacketFile packet = request as TcpPacketFile;
-
             switch (packet.Protocol)
             {
                 default:

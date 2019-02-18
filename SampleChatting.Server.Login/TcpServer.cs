@@ -12,14 +12,14 @@ namespace SampleChatting.Server.Login
     {
         public event Action<string> OnMessage;
 
-        Dictionary<Guid, TestHandlerCrypt> clientDic;
+        Dictionary<Guid, TcpClientHandlerCrypt> clientDic;
         List<TcpClient> lobbies;
 
         public TcpServer()
         {
             DataBase.Init();
 
-            this.clientDic = new Dictionary<Guid, TestHandlerCrypt>();
+            this.clientDic = new Dictionary<Guid, TcpClientHandlerCrypt>();
 
             //this.lobbies = new List<TcpClient>();
 
@@ -36,16 +36,16 @@ namespace SampleChatting.Server.Login
 
             TcpClient client;
             Guid guid;
-            TestHandlerCrypt handler;
+            TcpClientHandlerCrypt handler;
 
             while (true)
             {
                 client = await server.AcceptTcpClientAsync().ConfigureAwait(false);
                 guid = Guid.NewGuid();
-                handler = new TestHandlerCrypt(client: client, guid: guid, cryptKey: Values.CRYPT_KEY, cryptIV: Values.CRYPT_IV);
-                handler.OnDisconnect += Disconnect;
+                handler = new TcpClientHandlerCrypt(client: client, guid: guid, cryptKey: Values.CRYPT_KEY, cryptIV: Values.CRYPT_IV);
                 handler.OnRequest += OnRequest;
                 handler.OnMessage += OnMessage;
+                handler.OnDisconnect += Disconnect;
                 handler.StartListen();
 
                 this.clientDic.Add(guid, handler);
@@ -56,15 +56,14 @@ namespace SampleChatting.Server.Login
 
         void OnRequest(Guid guid, ITcpPacket request)
         {
-            TestHandlerCrypt client = this.clientDic[guid];
-            Task.Run(() => GetResult(client: client, request: request));
+            Task.Run(() => GetResult(client: this.clientDic[guid], request: request));
         }
 
-        async Task GetResult(TestHandlerCrypt client, ITcpPacket request)
+        async Task GetResult(TcpClientHandlerCrypt client, ITcpPacket request)
         {
-            ITcpPacket result = request.Type == PacketType.Message 
-                ? await TcpResponseLogin.GetResultMessageAsync(request: request) 
-                : await TcpResponseLogin.GetResulFileAsync(request: request);
+            ITcpPacket result = (request.Type == PacketType.Message) 
+                ? await TcpResponseLogin.GetResultMessageAsync(packet: request as TcpPacketMessage)
+                : await TcpResponseLogin.GetResulFileAsync(packet: request as TcpPacketFile);
 
             client.Send(packet: result);
         }
