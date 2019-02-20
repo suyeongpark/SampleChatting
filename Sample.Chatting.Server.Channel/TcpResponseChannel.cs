@@ -1,24 +1,39 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Sample.Chatting.Lib;
 using Suyeong.Lib.Net.Tcp;
+using Sample.Chatting.Lib;
+using Sample.Chatting.Database;
 
 namespace Sample.Chatting.Server.Channel
 {
     public static class TcpResponseChannel
     {
-        async public static Task<ITcpPacket> GetResultMessageAsync(TcpPacketMessage packet)
+        static IChattingDB database;
+
+        public static void Init()
         {
-            switch (packet.Protocol)
+            database = new ChattingMySql();
+        }
+
+        async public static Task<ITcpPacket> GetResultAsync(ITcpPacket request)
+        {
+            return (request.Type == PacketType.Message)
+                ? await GetResultMessageAsync(request: request as TcpPacketMessage)
+                : await GetResulFileAsync(request: request as TcpPacketFile);
+        }
+
+        async static Task<ITcpPacket> GetResultMessageAsync(TcpPacketMessage request)
+        {
+            switch (request.Protocol)
             {
                 default:
                     return null;
             }
         }
 
-        async public static Task<ITcpPacket> GetResulFileAsync(TcpPacketFile packet)
+        async static Task<ITcpPacket> GetResulFileAsync(TcpPacketFile request)
         {
-            switch (packet.Protocol)
+            switch (request.Protocol)
             {
                 default:
                     return null;

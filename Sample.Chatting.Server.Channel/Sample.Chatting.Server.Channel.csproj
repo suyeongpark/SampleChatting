@@ -100,6 +100,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Sample.Chatting.Database\Sample.Chatting.Database.csproj">
+      <Project>{3633af0d-2246-4a71-b598-2c4616943050}</Project>
+      <Name>Sample.Chatting.Database</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sample.Chatting.Lib\Sample.Chatting.Lib.csproj">
       <Project>{4808b5f9-2fb9-4f46-a3f1-61b7b65dc150}</Project>
       <Name>Sample.Chatting.Lib</Name>

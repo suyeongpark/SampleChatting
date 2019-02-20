@@ -13,9 +13,6 @@
     {
         public const int DELAY_CHECK_QUEUE = 1000;
 
-        public const string DB_DATASOURCE = "";
-        public const string DB_PASSWORD = "";
-
         public static byte[] CRYPT_KEY = { 185, 229, 136, 247, 43, 50, 49, 236, 97, 141, 71, 229, 84, 43, 139, 99, };
         public static byte[] CRYPT_IV = { 233, 185, 128, 8, 221, 109, 53, 175, 50, 19, 228, 164, 244, 25, 239, 38, };
     }
@@ -38,11 +35,5 @@
         public static string[] IP_LOBBY = {
             "localhost",
         };
-    }
-
-    public static class Parameters
-    {
-        public const string ID = "@ID";
-        public const string PASSWORD = "@Password";
     }
 }

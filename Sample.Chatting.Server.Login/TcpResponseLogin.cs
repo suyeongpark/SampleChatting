@@ -2,29 +2,44 @@
 using System.Threading.Tasks;
 using Suyeong.Lib.Net.Tcp;
 using Sample.Chatting.Lib;
+using Sample.Chatting.Database;
 
 namespace Sample.Chatting.Server.Login
 {
     public static class TcpResponseLogin
     {
-        async public static Task<ITcpPacket> GetResultMessageAsync(TcpPacketMessage packet)
+        static IChattingDB database;
+
+        public static void Init()
         {
-            switch (packet.Protocol)
+            database = new ChattingMySql();
+        }
+
+        async public static Task<ITcpPacket> GetResultAsync(ITcpPacket request)
+        {
+            return (request.Type == PacketType.Message) 
+                ? await GetResultMessageAsync(request: request as TcpPacketMessage) 
+                : await GetResulFileAsync(request: request as TcpPacketFile);
+        }
+
+        async static Task<ITcpPacket> GetResultMessageAsync(TcpPacketMessage request)
+        {
+            switch (request.Protocol)
             {
                 case Protocols.CREATE_USER:
-                    return await CreateUser(protocol: Protocols.CREATE_USER, data: packet.Data);
+                    return await CreateUser(protocol: Protocols.CREATE_USER, data: request.Data);
 
                 case Protocols.LOGIN:
-                    return await Login(protocol: Protocols.LOGIN, data: packet.Data);
+                    return await Login(protocol: Protocols.LOGIN, data: request.Data);
 
                 default:
                     return null;
             }
         }
 
-        async public static Task<ITcpPacket> GetResulFileAsync(TcpPacketFile packet)
+        async static Task<ITcpPacket> GetResulFileAsync(TcpPacketFile request)
         {
-            switch (packet.Protocol)
+            switch (request.Protocol)
             {
                 default:
                     return null;
@@ -39,13 +54,13 @@ namespace Sample.Chatting.Server.Login
 
             return new TcpPacketMessage(type: PacketType.Message, protocol: protocol, data: true);
 
-            if (await DataBase.IsDuplicated(id))
+            if (await database.IsDuplicatedAsync(id))
             {
                 return new TcpPacketMessage(type: PacketType.Message, protocol: protocol, data: false);
             }
             else
             {
-                bool isSucceed = await DataBase.CreateUser(id: id, password: password);
+                bool isSucceed = await database.CreateUserAsync(id: id, password: password);
 
                 return new TcpPacketMessage(type: PacketType.Message, protocol: protocol, data: isSucceed);
             }

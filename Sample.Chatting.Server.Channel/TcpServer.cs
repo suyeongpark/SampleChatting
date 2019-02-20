@@ -17,6 +17,8 @@ namespace Sample.Chatting.Server.Channel
 
         public TcpServer()
         {
+            TcpResponseChannel.Init();
+
             this.rooms = new List<TcpClient>();
 
             foreach (string ip in Servers.IP_LOBBY)
@@ -57,11 +59,7 @@ namespace Sample.Chatting.Server.Channel
 
         async Task GetResult(TcpClientHandlerCrypt client, ITcpPacket request)
         {
-            ITcpPacket result = (request.Type == PacketType.Message)
-                ? await TcpResponseChannel.GetResultMessageAsync(packet: request as TcpPacketMessage)
-                : await TcpResponseChannel.GetResulFileAsync(packet: request as TcpPacketFile);
-
-            client.Send(packet: result);
+            client.Send(packet: await TcpResponseChannel.GetResultAsync(request: request));
         }
 
         void Disconnect(Guid guid)

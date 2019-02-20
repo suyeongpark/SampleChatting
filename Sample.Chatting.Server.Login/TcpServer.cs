@@ -17,7 +17,7 @@ namespace Sample.Chatting.Server.Login
 
         public TcpServer()
         {
-            DataBase.Init();
+            TcpResponseLogin.Init();
 
             this.clientDic = new Dictionary<Guid, TcpClientHandlerCrypt>();
 
@@ -61,11 +61,7 @@ namespace Sample.Chatting.Server.Login
 
         async Task GetResult(TcpClientHandlerCrypt client, ITcpPacket request)
         {
-            ITcpPacket result = (request.Type == PacketType.Message) 
-                ? await TcpResponseLogin.GetResultMessageAsync(packet: request as TcpPacketMessage)
-                : await TcpResponseLogin.GetResulFileAsync(packet: request as TcpPacketFile);
-
-            client.Send(packet: result);
+            client.Send(packet: await TcpResponseLogin.GetResultAsync(request: request));
         }
 
         void Disconnect(Guid guid)

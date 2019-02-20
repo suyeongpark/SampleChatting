@@ -3,21 +3,19 @@ using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using Suyeong.Lib.DB.MySql;
 using Suyeong.Lib.Util;
-using Sample.Chatting.Lib;
 
-namespace Sample.Chatting.Server.Login
+namespace Sample.Chatting.Database
 {
-    public static class DataBase
+    public class ChattingMySql : IChattingDB
     {
-        static string _conStr;
+        string conStr;
 
-        public static void Init()
+        public void Init()
         {
-            _conStr = MySqlDB.GetDbConStr(server: "", database: "", uid: "", password: "");
-            //_conStr = MySqlDB.GetDbConStr(dataSource: Values.DB_DATASOURCE, password: Values.DB_PASSWORD);
+            this.conStr = MySqlDB.GetDbConStr(server: Variables.MYSQL_SERVER, database: Variables.MYSQL_DATA_BASE, uid: Variables.MYSQL_UID, password: Variables.MYSQL_PASSWORD);
         }
 
-        async public static Task<bool> IsDuplicated(string id)
+        async public Task<bool> IsDuplicatedAsync(string id)
         {
             string result = string.Empty;
 
@@ -27,7 +25,7 @@ namespace Sample.Chatting.Server.Login
                     new MySqlParameter(Parameters.ID, id),
                 };
 
-                result = await Task.Run(() => MySqlDB.GetDataSingle(conStr: _conStr, query: Queries.SELECT_ID, parameters: parameters));
+                result = await MySqlDB.GetDataSingleAsync(conStr: this.conStr, query: Queries.SELECT_ID, parameters: parameters);
             }
             catch (Exception ex)
             {
@@ -37,7 +35,7 @@ namespace Sample.Chatting.Server.Login
             return Utils.GetIntFromString(result) > 0;
         }
 
-        async public static Task<bool> CreateUser(string id, string password)
+        async public Task<bool> CreateUserAsync(string id, string password)
         {
             bool result = false;
 
@@ -51,7 +49,7 @@ namespace Sample.Chatting.Server.Login
                     new MySqlParameter(Parameters.PASSWORD, password),
                 };
 
-                result = await Task.Run(() => MySqlDB.SetQuery(conStr: _conStr, query: Queries.INSERT_USER, parameters: parameters));
+                result = await MySqlDB.SetQueryAsync(conStr: this.conStr, query: Queries.INSERT_USER, parameters: parameters);
             }
             catch (Exception ex)
             {
@@ -61,7 +59,7 @@ namespace Sample.Chatting.Server.Login
             return result;
         }
 
-        async public static Task<bool> IsApproved(string id, string password)
+        async public Task<bool> IsApprovedAsync(string id, string password)
         {
             string result = string.Empty;
 
@@ -73,7 +71,7 @@ namespace Sample.Chatting.Server.Login
                     new MySqlParameter(Parameters.PASSWORD, password),
                 };
 
-                result = await Task.Run(() => MySqlDB.GetDataSingle(conStr: _conStr, query: Queries.SELECT_ACCOUNT, parameters: parameters));
+                result = await MySqlDB.GetDataSingleAsync(conStr: this.conStr, query: Queries.SELECT_ACCOUNT, parameters: parameters);
             }
             catch (Exception ex)
             {
