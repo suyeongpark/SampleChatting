@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using Suyeong.Lib.Net.Tcp;
 using Sample.Chatting.Lib;
@@ -22,7 +19,6 @@ namespace Sample.Chatting.Client
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)

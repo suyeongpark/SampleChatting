@@ -17,7 +17,7 @@ namespace Sample.Chatting.Database
 
         async public Task<bool> IsDuplicatedAsync(string id)
         {
-            string result = string.Empty;
+            bool result = false;
 
             try
             {
@@ -25,14 +25,15 @@ namespace Sample.Chatting.Database
                     new MySqlParameter(Parameters.ID, id),
                 };
 
-                result = await MySqlDB.GetDataSingleAsync(conStr: this.conStr, query: Queries.SELECT_ID, parameters: parameters);
+                object value = await MySqlDB.GetDataSingleAsync(conStr: this.conStr, query: Queries.SELECT_ID, parameters: parameters);
+                result = Utils.GetIntFromString(value.ToString()) > 0;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
 
-            return Utils.GetIntFromString(result) > 0;
+            return result;
         }
 
         async public Task<bool> CreateUserAsync(string id, string password)
@@ -61,7 +62,7 @@ namespace Sample.Chatting.Database
 
         async public Task<bool> IsApprovedAsync(string id, string password)
         {
-            string result = string.Empty;
+            bool result = false;
 
             try
             {
@@ -71,14 +72,15 @@ namespace Sample.Chatting.Database
                     new MySqlParameter(Parameters.PASSWORD, password),
                 };
 
-                result = await MySqlDB.GetDataSingleAsync(conStr: this.conStr, query: Queries.SELECT_ACCOUNT, parameters: parameters);
+                object value = await MySqlDB.GetDataSingleAsync(conStr: this.conStr, query: Queries.SELECT_ACCOUNT, parameters: parameters);
+                result = Utils.GetIntFromString(value.ToString()) > 0;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
 
-            return Utils.GetIntFromString(result) > 0;
+            return result;
         }
     }
 }
